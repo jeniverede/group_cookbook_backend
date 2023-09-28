@@ -56,5 +56,20 @@ cookbookRouter.post("/", (req, res) => {
 });
 
 // DELETE
+cookbookRouter.delete("/:category", (req, res) => {
+  const { category } = req.params;
+  const query = "DELETE FROM recipe WHERE category=$1";
+  pool.query(query, [category], (err, result) => {
+    res.send(result.rows);
+  });
+});
+
+cookbookRouter.delete("/:category/:food", (req, res) => {
+  const { food } = req.params;
+  const query = "DELETE FROM recipe WHERE urlname=$1";
+  pool.query(query, [food], (err, result) => {
+    res.send(result.rows);
+  });
+});
 
 module.exports = cookbookRouter;
