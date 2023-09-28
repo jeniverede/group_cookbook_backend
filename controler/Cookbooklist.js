@@ -2,7 +2,7 @@ const express = require("express");
 
 const cookbookRouter = express.Router();
 const { Pool, Client } = require("pg");
-
+cookbookRouter.use(express.json());
 const pool = new Pool();
 
 cookbookRouter.get("/", (req, res) => {
@@ -21,6 +21,7 @@ cookbookRouter.get("/:category", (req, res) => {
   const { category } = req.params;
   let query = "SELECT * FROM recipe WHERE category=$1";
   console.log(category);
+
   pool.query(query, [category], (err, result) => {
     if (err) console.error(err);
     else {
@@ -39,5 +40,21 @@ cookbookRouter.get("/:category/:food", (req, res) => {
     }
   });
 });
+
+//  Add recipe
+cookbookRouter.post("/", (req, res) => {
+  const { name, image, category, ingredients, instructions, urlname } =
+    req.body;
+
+  pool
+    .query(
+      "INSERT INTO recipe (name, image, category, ingredients, instructions, urlname) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *",
+      [name, image, category, ingredients, instructions, urlname]
+    )
+    .then((data) => res.json(data.rows))
+    .catch((e) => res.sendStatus(500).send(e));
+});
+
+// DELETE
 
 module.exports = cookbookRouter;
